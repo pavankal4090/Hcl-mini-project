@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login Analysis</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>User Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <div class="error" id="error"></div>
+        </form>
+    </div>
+    
+    <div class="dashboard" style="display: none;">
+        <h2>Dashboard</h2>
+        <canvas id="loginChart"></canvas>
+        <canvas id="locationChart"></canvas>
+        <button id="logoutBtn">Logout</button>
+        <button id="updateRoleBtn">Update User Role</button>
+        <table id="loginTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Login Time</th>
+                    <th>Location</th>
+                    <th>Anomaly Detected</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="roleUpdate" style="display: none;">
+        <h2>Update User Role</h2>
+        <input type="text" id="updateUsername" placeholder="Username" required>
+        <select id="updateRole">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button id="submitRoleUpdate">Submit</button>
+        <div class="roleError" id="roleError"></div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('error');
+        const dashboard = document.querySelector('.dashboard');
+        const loginTableBody = document.querySelector('#loginTable tbody');
+        const logoutButton = document.getElementById('logoutBtn');
+        const updateRoleButton = document.getElementById('updateRoleBtn');
+        const roleUpdateDiv = document.querySelector('.roleUpdate');
+        const submitRoleUpdateButton = document.getElementById('submitRoleUpdate');
+        const roleErrorDiv = document.getElementById('roleError');
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Send login credentials to the server
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token); 
+                dashboard.style.display = 'block'; 
+                fetchLoginEvents(username); 
+                roleUpdateDiv.style.display = 'none'; 
+            } else {
+                const errorMessage = await response.text();
+                errorDiv.innerText = errorMessage;
+            }
+        });
+
+        // Fetch login events for the user
+        async function fetchLoginEvents(username) {
+            const response = await fetch('/login-events', {
+                headers: { 'Authorization': localStorage.getItem('token') }
+            });
+            const events = await response.json();
+            updateLoginTable(events); 
+            updateCharts(events); 
+        }
+
+        // Update the login table with events data
+        function updateLoginTable(events) {
+            loginTableBody.innerHTML = ''; 
+            events.forEach(event => {
+                const row = loginTableBody.insertRow();
+                row.insertCell(0).innerText = event.username; 
+                row.insertCell(1).innerText = new Date(event.loginTime).toLocaleString(); 
+                row.insertCell(2).innerText = event.location; 
+                row.insertCell(3).innerText = event.isAnomaly ? 'Yes' : 'No'; 
+            });
+        }
+
+        // Update charts based on login events
+        function updateCharts(events) {
+            const loginCtx = document.getElementById('loginChart').getContext('2d');
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+
+            // Prepare data for charts
+            const loginCountsByHour = {};
+            const loginCountsByLocation = {};
+
+            events.forEach(event => {
+                const hour = new Date(event.loginTime).getHours();
+                loginCountsByHour[hour] = (loginCountsByHour[hour] || 0) + 1; 
+                loginCountsByLocation[event.location] = (loginCountsByLocation[event.location] || 0) + 1;
+            });
+
+            // Prepare data for Login Chart
+            const hours = Object.keys(loginCountsByHour);
+            const loginCounts = Object.values(loginCountsByHour);
+
+            const locationLabels = Object.keys(loginCountsByLocation);
+            const locationCounts = Object.values(loginCountsByLocation);
+
+            new Chart(loginCtx, {
+                type: 'bar',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: 'Logins Per Hour',
+                        data: loginCounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+
+            //Pie chart
+            new Chart(locationCtx, {
+                type: 'pie',
+                data: {
+                    labels: locationLabels,
+                    datasets: [{
+                        label: 'Logins by Location',
+                        data: locationCounts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        // Handle logout button click
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('token'); 
+            dashboard.style.display = 'none'; 
+            document.getElementById('username').value = ''; 
+            document.getElementById('password').value = ''; 
+        });
+
+        // Show role update section
+        updateRoleButton.addEventListener('click', () => {
+            roleUpdateDiv.style.display = 'block'; 
+        });
+
+        // Handle role update submission
+        submitRoleUpdateButton.addEventListener('click', async () => {
+            const username = document.getElementById('updateUsername').value; 
+            const role = document.getElementById('updateRole').value; 
+
+            // Send role update request
+            const response = await fetch(`/update-role/${username}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ role })
+            });
+
+            if (response.ok) {
+                alert('User role updated successfully!'); 
+            } else {
+                const errorMessage = await response.text();
+                roleErrorDiv.innerText = errorMessage;
+            }
+        });
+
+        // WebSocket for real-time notifications
+        const socket = new WebSocket('ws://localhost:8080');
+        socket.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            alert(`New login event detected for ${message.username} at ${new Date(message.loginTime).toLocaleString()}. Anomaly: ${message.isAnomaly}`);
+            fetchLoginEvents(message.username); 
+        };
+    </script>
+</body>
+</html>

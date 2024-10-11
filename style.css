@@ -1,0 +1,169 @@
+/* General Body Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4; 
+    margin: 0; 
+    padding: 20px; 
+    transition: background-color 0.3s; 
+}
+
+/* Container for Form and Content */
+.container {
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    transition: box-shadow 0.3s, transform 0.3s; 
+}
+
+.container:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); 
+    transform: scale(1.02); 
+}
+
+/* Headings Styles */
+h2 {
+    margin-top: 0; 
+    color: #333; 
+    font-size: 24px; 
+    text-align: center; 
+}
+
+/* Input Field Styles */
+input[type="text"],
+input[type="password"] {
+    width: calc(100% - 22px); 
+    padding: 10px; 
+    margin: 10px 0; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    transition: border 0.3s, box-shadow 0.3s; 
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border: 1px solid #007bff; 
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+}
+
+/* Button Styles */
+button {
+    padding: 10px; 
+    background-color: #28a745; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; 
+}
+
+button:hover {
+    background-color: #218838; 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+}
+
+/* Error Message Styles */
+.error,
+.roleError {
+    color: red; 
+    margin-top: 10px; 
+    font-weight: bold; 
+    text-align: center; 
+}
+
+/* Dashboard Styles */
+.dashboard {
+    margin-top: 20px; 
+    padding: 20px; 
+    border-radius: 8px; 
+    background-color: white; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+/* Table Styles */
+table {
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+}
+
+th,
+td {
+    border: 1px solid #ccc; 
+    padding: 8px; 
+    text-align: left; 
+    transition: background-color 0.3s; 
+}
+
+th {
+    background-color: #f2f2f2; 
+    text-align: center; 
+    font-weight: bold; 
+}
+
+tbody tr:hover {
+    background-color: #f1f1f1; 
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9; 
+}
+
+/* Canvas Styles for Charts */
+canvas {
+    margin-top: 20px; 
+    max-width: 600px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+}
+
+/* Role Update Section Styles */
+.roleUpdate {
+    margin-top: 20px; 
+    background: #fff3cd; 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 1px solid #ffeeba; 
+    transition: border 0.3s, background-color 0.3s; 
+}
+
+.roleUpdate:hover {
+    border: 1px solid #ffc107; 
+    background-color: #ffeeba; 
+}
+
+/* Role Update Input and Select Styles */
+.roleUpdate input,
+.roleUpdate select {
+    margin-right: 10px; 
+}
+
+.roleUpdate select {
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    transition: border 0.3s; 
+}
+
+.roleUpdate select:focus {
+    border: 1px solid #007bff; 
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+}
+
+/* Paragraph Styles within Container */
+.container p {
+    font-size: 16px; 
+    color: #666; 
+    text-align: justify; 
+    margin-top: 10px; 
+    line-height: 1.5; 
+}
+
+/* Dashboard Header Styles */
+.dashboard h2 {
+    margin-bottom: 20px; 
+    font-size: 28px; 
+    color: #333; 
+    text-decoration: underline; 
+}
